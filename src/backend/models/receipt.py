@@ -1,8 +1,9 @@
 import uuid
 from datetime import datetime
-from parser.db import Base
 
 from sqlalchemy import Column, DateTime, Float, Integer, String
+
+from backend.db import Base
 
 
 class Receipt(Base):

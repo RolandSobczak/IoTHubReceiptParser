@@ -1,7 +1,7 @@
-from parser.repositories import fetch_payment_method, fetch_tax_rate
-from parser.schemas import ReceiptItemSchema, ReceiptSchema
-
 from sqlalchemy.orm import Session
+
+from backend.repositories import fetch_payment_method, fetch_tax_rate
+from backend.schemas import ReceiptItemSchema, ReceiptSchema
 
 
 def parse_receipt(db: Session, receipt_body: dict) -> ReceiptSchema:

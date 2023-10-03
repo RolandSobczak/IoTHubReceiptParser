@@ -1,7 +1,8 @@
 import uuid
-from parser.db import Base
 
 from sqlalchemy import Column, Float, ForeignKey, Integer, String
+
+from backend.db import Base
 
 
 class ReceiptItem(Base):
