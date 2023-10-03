@@ -1,7 +1,7 @@
-from parser.models import PaymentMethod, Receipt, ReceiptItem, TaxRate
-from parser.schemas import ReceiptItemSchema, ReceiptSchema
-
 from sqlalchemy.orm import Session
+
+from backend.models import PaymentMethod, Receipt, ReceiptItem, TaxRate
+from backend.schemas import ReceiptItemSchema, ReceiptSchema
 
 
 def fetch_payment_method(db: Session, payment_method_name: str) -> PaymentMethod | None:

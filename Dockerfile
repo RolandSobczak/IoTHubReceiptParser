@@ -1,17 +1,17 @@
 FROM python:3.11.5-bullseye
 
-WORKDIR /app
+WORKDIR /src
 
-COPY src/odbc-installer.sh /app
+COPY src/odbc-installer.sh /src
 RUN chmod 777 odbc-installer.sh
 RUN ./odbc-installer.sh
 
-COPY poetry.lock pyproject.toml /app/
+COPY src/poetry.lock src/pyproject.toml /src/
 
 ENV PYTHONPATH=${PYTHONPATH}:${PWD}
 RUN pip3 install --upgrade pip
 RUN pip3 install poetry
 RUN poetry config virtualenvs.create false && poetry install --no-interaction --no-root
 
-COPY src/main.py /app/main.py
-CMD ["python", "/app/main.py"]
+COPY ./src /src
+CMD ["python", "/src/parser/main.py"]

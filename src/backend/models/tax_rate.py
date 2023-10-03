@@ -1,6 +1,6 @@
-from parser.db import Base
-
 from sqlalchemy import Column, DateTime, Float, String
+
+from backend.db import Base
 
 
 class TaxRate(Base):

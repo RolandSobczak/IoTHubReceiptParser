@@ -1,6 +1,6 @@
-from parser.db import Base
-
 from sqlalchemy import Column, String
+
+from backend.db import Base
 
 
 class PaymentMethod(Base):
