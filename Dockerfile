@@ -14,4 +14,4 @@ RUN pip3 install poetry
 RUN poetry config virtualenvs.create false && poetry install --no-interaction --no-root
 
 COPY ./src /src
-CMD ["python", "/src/parser/main.py"]
+CMD ["poetry", "run", "receipt-parser"]
