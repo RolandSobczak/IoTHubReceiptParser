@@ -4,11 +4,12 @@ from datetime import datetime
 from sqlalchemy import Column, DateTime, Float, Integer, String
 
 from backend.db import Base
+from backend.settings import SETTINGS
 
 
 class Receipt(Base):
     __tablename__ = "receipt"
-    __table_args__ = {"schema": "demo01"}
+    __table_args__ = {"schema": SETTINGS.SCHEMA}
 
     id = Column(
         String(length=36),
