@@ -13,16 +13,16 @@ def parse_receipt(db: Session, receipt_body: dict) -> ReceiptSchema:
     )
     payment_method_name = receipt_body["payment-method"]
     payment_method = fetch_payment_method(db, payment_method_name)
-
     amount_tax = 0
-    for receipt in receipt_body["receipt"]:
-        tax_definition = fetch_tax_rate(db, receipt["tax-id"])
-        if tax_definition is not None:
-            tax_value = (
-                float(receipt["gross-amount"].replace(",", "."))
-                * tax_definition.tax_rate
-            )
-            amount_tax += tax_value
+    if payment_method is None:
+        for receipt in receipt_body["receipt"]:
+            tax_definition = fetch_tax_rate(db, receipt["tax-id"])
+            if tax_definition is not None:
+                tax_value = (
+                    float(receipt["gross-amount"].replace(",", "."))
+                    * tax_definition.tax_rate
+                )
+                amount_tax += tax_value
 
     return ReceiptSchema(
         doc_number=receipt_body["docNumber"],
@@ -38,15 +38,17 @@ def parse_receipt(db: Session, receipt_body: dict) -> ReceiptSchema:
 
 
 def parse_receipt_item(db: Session, receipt_item: dict) -> ReceiptItemSchema:
-    gross_amount = float(receipt_item["gross-amount"].replace(",", "."))
+    gross_amount = float(receipt_item["gross-amount"].replace(",", ""))
     tax_definition = fetch_tax_rate(db, receipt_item["tax-id"])
-    amount_tax = tax_definition.tax_rate * gross_amount
+    amount_tax = 0
+    if tax_definition is not None:
+        amount_tax = tax_definition.tax_rate * gross_amount
     return ReceiptItemSchema(
-        qty=receipt_item["qty"],
+        qty=int(receipt_item["qty"].replace(",", "")),
         discount=receipt_item["discount-item"],
         tax_id=receipt_item["tax-id"],
         unit_name=receipt_item["unit-name"],
-        gross=float(receipt_item["brutto"].replace(",", ".")),
+        gross=float(receipt_item["brutto"].replace(",", "")),
         name=receipt_item["name"],
         gross_amount=gross_amount,
         amount_tax=amount_tax,

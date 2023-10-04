@@ -6,12 +6,12 @@ from pydantic import BaseModel, Field
 
 class ReceiptSchema(BaseModel):
     id: Optional[str] = None
-    doc_number: str = Field(min_length=1)
+    doc_number: str
     date: datetime
-    cube4pos_id: str = Field(min_length=1)
-    user_id: str = Field(min_length=1)
-    discount: str = Field(min_length=1)
-    payment_method_id: str = Field(min_length=1)
-    purchaser_tax_id_number: str = Field(min_length=1)
+    cube4pos_id: str
+    user_id: str
+    discount: str
+    payment_method_id: str
+    purchaser_tax_id_number: str
     gross: float
     amount_tax: float
