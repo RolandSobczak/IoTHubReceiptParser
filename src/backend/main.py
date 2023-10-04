@@ -10,9 +10,10 @@ from sqlalchemy.orm import Session
 from backend.db import SessionLocal
 from backend.parser import parse_receipt, parse_receipt_item
 from backend.repositories import create_receipt, create_receipts_item
+from backend.settings import SETTINGS
 
 INPUT_FOLDER = "/input"
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=SETTINGS.LOG_LEVEL)
 
 
 def get_all_nested_files(root_dir: Path) -> list[str]:
@@ -39,7 +40,7 @@ def insert_receipt_json(db: Session, receipt_json):
 
 
 def main():
-    file_paths = get_all_nested_files(INPUT_FOLDER)
+    file_paths = get_all_nested_files(Path(INPUT_FOLDER))
     db = SessionLocal()
     for file_path in file_paths:
         with open(file_path, encoding="utf-8") as input:

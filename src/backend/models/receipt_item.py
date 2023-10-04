@@ -3,11 +3,12 @@ import uuid
 from sqlalchemy import Column, Float, ForeignKey, Integer, String
 
 from backend.db import Base
+from backend.settings import SETTINGS
 
 
 class ReceiptItem(Base):
     __tablename__ = "receipt_item"
-    __table_args__ = {"schema": "demo01"}
+    __table_args__ = {"schema": SETTINGS.SCHEMA}
 
     id = Column(
         String(length=36),
