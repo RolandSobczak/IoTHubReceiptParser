@@ -6,13 +6,16 @@ Simple CLI tool for parsing receipts from IoT HUB to CUBE API format
 
 1. Install docker and docker-compose on your local machine
 2. Copy content of `.env.example` to `.env` file and fill it with db MSSQL db credentials
-3. Copy all receipt JSON files to `input/` folder
-4. Build docker image
+3. Create `input/` folder on Your local machine
+   ```shell
+   mkdir input
+   ```
+4. Copy all receipt JSON files to `input/` folder
+5. Build docker image
     ```shell
     docker-compose build
     ```
-
-5. Run docker container
+6. Run docker container
     ```shell
     docker-compose up
     ```
