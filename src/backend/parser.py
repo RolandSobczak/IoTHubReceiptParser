@@ -30,7 +30,7 @@ def parse_receipt(db: Session, receipt_body: dict) -> ReceiptSchema:
         cube4pos_id=receipt_body["id-cube4pos"],
         user_id=receipt_body["id-user"],
         discount=receipt_body["discount-receipt"],
-        payment_method_id=payment_method.id,
+        payment_method_id=payment_method.id if payment_method is not None else None,
         purchaser_tax_id_number=receipt_body["purchaser-tax-id-number"],
         gross=brutto,
         amount_tax=amount_tax,
