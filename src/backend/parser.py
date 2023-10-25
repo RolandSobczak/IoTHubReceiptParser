@@ -1,5 +1,10 @@
+import logging
+from typing import Tuple
+
+from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
+from backend.decorators import with_retry
 from backend.repositories import fetch_payment_method, fetch_tax_rate
 from backend.schemas import ReceiptItemSchema, ReceiptSchema
 
@@ -43,7 +48,7 @@ def parse_receipt_item(db: Session, receipt_item: dict) -> ReceiptItemSchema:
     amount_tax = 0
     if tax_definition is not None:
         amount_tax = tax_definition.tax_rate * gross_amount
-    return ReceiptItemSchema(
+    item = ReceiptItemSchema(
         qty=int(receipt_item["qty"].replace(",", "")),
         discount=receipt_item["discount-item"],
         tax_id=receipt_item["tax-id"],
@@ -53,3 +58,23 @@ def parse_receipt_item(db: Session, receipt_item: dict) -> ReceiptItemSchema:
         gross_amount=gross_amount,
         amount_tax=amount_tax,
     )
+    logging.debug(f"Successful parsed ReceiptItem. [name={item.name}]")
+    return item
+
+
+@with_retry(5)
+def parse_document(
+    db,
+    receipt_json: dict,
+) -> Tuple[ReceiptSchema, list[ReceiptItemSchema]]:
+    parsed_receipt = parse_receipt(db, receipt_json["Body"])
+    parsed_receipt_items = []
+    for receipt_item in receipt_json["Body"]["receipt"]:
+        try:
+            parsed_receipt_item = parse_receipt_item(db, receipt_item)
+            parsed_receipt_items.append(parsed_receipt_item)
+        except ValidationError as error_msg:
+            logging.debug(error_msg)
+            logging.info("Incorrect receipt item skipped")
+
+    return parsed_receipt, parsed_receipt_items

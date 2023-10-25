@@ -4,12 +4,12 @@ import os
 from json import JSONDecodeError
 from pathlib import Path
 
+import click
 from pydantic import ValidationError
-from sqlalchemy.orm import Session
 
-from backend.db import SessionLocal
-from backend.parser import parse_receipt, parse_receipt_item
-from backend.repositories import create_receipt, create_receipts_item
+from backend.db import create_new_connection
+from backend.parser import parse_document
+from backend.repositories import insert_document
 from backend.settings import SETTINGS
 
 INPUT_FOLDER = "/input"
@@ -26,34 +26,39 @@ def get_all_nested_files(root_dir: Path) -> list[str]:
     return file_paths
 
 
-def insert_receipt_json(db: Session, receipt_json):
-    receipt_data = parse_receipt(db, receipt_json["Body"])
-    db_receipt = create_receipt(db, receipt_data)
-    logging.info(f"Receipt inserted successful [id={db_receipt.id}]")
-    for receipt_item in receipt_json["Body"]["receipt"]:
-        try:
-            receipt_item_schema = parse_receipt_item(db, receipt_item)
-            db_receipt_item = create_receipts_item(db, receipt_item_schema)
-            logging.info(f"Receipt item inserted successful [id={db_receipt_item.id}]")
-        except ValidationError as error_msg:
-            logging.info("Incorrect receipt item skipped")
+def upload_receipt(db, receipt_data: str, file_path: str):
+    try:
+        receipt_json = json.loads(receipt_data)
+        parsed_receipt, parsed_receipt_items = parse_document(db, receipt_json)
+        logging.info(f"Successfully parsed receipt [path={file_path}]")
+        insert_document(db, parsed_receipt, parsed_receipt_items)
+    except ValidationError as error_msg:
+        logging.debug(error_msg)
+        logging.info(f"Invalid Receipt format. Skipping... [path={file_path}]")
+    except JSONDecodeError as error_msg:
+        logging.debug(error_msg)
+        logging.info(
+            f"Receipt doesn't meet Receipt Schema requirements. Skipping... [path={file_path}]",
+        )
 
 
-def main():
+@click.command()
+@click.option("-d", "--delete-files", type=bool)
+def main(delete_files: bool):
+    """Main parser command function. Parse receipt and send it to SQL database.
+
+    :param delete: if it's true removes file from disk after receipt upload
+    :type delete: bool
+    """
     file_paths = get_all_nested_files(Path(INPUT_FOLDER))
-    db = SessionLocal()
+    db = create_new_connection()
     for file_path in file_paths:
         with open(file_path, encoding="utf-8") as input:
-            while file := input.readline():
-                try:
-                    receipt_json = json.loads(file)
-                    insert_receipt_json(db, receipt_json)
-                except ValidationError as error_msg:
-                    logging.debug(error_msg)
-                    logging.info(f"Invalid receipt skipped [path={file_path}]")
-                except JSONDecodeError as error_msg:
-                    logging.debug(error_msg)
-                    logging.info(f"Incorrect JSON format [path={file_path}]")
+            while receipt_json := input.readline():
+                upload_receipt(db, receipt_data=receipt_json, file_path=file_path)
+
+        if delete_files:
+            os.remove(file_path)
 
 
 if __name__ == "__main__":

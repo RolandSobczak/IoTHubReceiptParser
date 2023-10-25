@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel, Field
 
 
@@ -8,5 +10,5 @@ class ReceiptItemSchema(BaseModel):
     name: str = Field(min_length=1)
     gross_amount: float
     gross: float
-    unit_name: str
+    unit_name: Optional[str] = None
     amount_tax: float
