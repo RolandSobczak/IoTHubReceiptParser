@@ -12,6 +12,7 @@ class Settings(BaseConfig):
     PASSWORD = env("PASSWORD")
     SCHEMA = env("SCHEMA")
     LOG_LEVEL = env.log_level("LOG_LEVEL")
+    DELETE_FILES = env.bool("DELETE_FILES", False)
 
 
 SETTINGS = Settings

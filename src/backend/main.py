@@ -4,7 +4,6 @@ import os
 from json import JSONDecodeError
 from pathlib import Path
 
-import click
 from pydantic import ValidationError
 
 from backend.db import create_new_connection
@@ -42,9 +41,7 @@ def upload_receipt(db, receipt_data: str, file_path: str):
         )
 
 
-@click.command()
-@click.option("-d", "--delete-files", type=bool)
-def main(delete_files: bool):
+def main():
     """Main parser command function. Parse receipt and send it to SQL database.
 
     :param delete: if it's true removes file from disk after receipt upload
@@ -57,8 +54,9 @@ def main(delete_files: bool):
             while receipt_json := input.readline():
                 upload_receipt(db, receipt_data=receipt_json, file_path=file_path)
 
-        if delete_files:
+        if SETTINGS.DELETE_FILES:
             os.remove(file_path)
+            logging.info(f"Receipt file deleted. [path={file_path}]")
 
 
 if __name__ == "__main__":
