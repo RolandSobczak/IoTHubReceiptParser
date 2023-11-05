@@ -1,3 +1,5 @@
+import logging
+
 from sqlalchemy.orm import Session
 
 from backend.decorators import with_retry
@@ -40,6 +42,9 @@ def insert_document(
     receipt_items: list[ReceiptItemSchema],
 ):
     create_receipt(db, receipt)
-    for receipt_item in receipt_items:
-        create_receipts_item(db, receipt_item)
-    db.commit()
+    try:
+        for receipt_item in receipt_items:
+            create_receipts_item(db, receipt_item)
+        db.commit()
+    except Exception as e:
+        logging.debug(e)
