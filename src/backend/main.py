@@ -39,6 +39,16 @@ def upload_receipt(db, receipt_data: str, file_path: str):
         logging.info(
             f"Receipt doesn't meet Receipt Schema requirements. Skipping... [path={file_path}]",
         )
+    except RuntimeError as error_msg:
+        logging.debug(error_msg)
+        logging.info(
+            f"Receipt doesn't meet Receipt Schema requirements. Skipping... [path={file_path}]",
+        )
+    except Exception as error_msg:
+        logging.debug(error_msg)
+        logging.info(
+            f"Receipt doesn't meet Receipt Schema requirements. Skipping... [path={file_path}]",
+        )
 
 
 def main():

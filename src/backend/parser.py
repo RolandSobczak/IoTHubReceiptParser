@@ -67,14 +67,16 @@ def parse_document(
     db,
     receipt_json: dict,
 ) -> Tuple[ReceiptSchema, list[ReceiptItemSchema]]:
-    parsed_receipt = parse_receipt(db, receipt_json["Body"])
-    parsed_receipt_items = []
-    for receipt_item in receipt_json["Body"]["receipt"]:
-        try:
-            parsed_receipt_item = parse_receipt_item(db, receipt_item)
-            parsed_receipt_items.append(parsed_receipt_item)
-        except ValidationError as error_msg:
-            logging.debug(error_msg)
-            logging.info("Incorrect receipt item skipped")
+    if type(receipt_json["Body"]) == dict:
+        parsed_receipt = parse_receipt(db, receipt_json["Body"])
+        parsed_receipt_items = []
+        for receipt_item in receipt_json["Body"]["receipt"]:
+            try:
+                parsed_receipt_item = parse_receipt_item(db, receipt_item)
+                parsed_receipt_items.append(parsed_receipt_item)
+            except ValidationError as error_msg:
+                logging.debug(error_msg)
+                logging.info("Incorrect receipt item skipped")
 
-    return parsed_receipt, parsed_receipt_items
+        return parsed_receipt, parsed_receipt_items
+    raise RuntimeError("Receipt body does not contain valid dict.")
